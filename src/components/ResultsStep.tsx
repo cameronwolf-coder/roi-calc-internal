@@ -171,41 +171,132 @@ export function ResultsStep({
                     </div>
 
                     {showAdvanced ? (
-                        <div className="border-t border-gray-200 pt-8 mt-8">
-                            <h3 className="font-semibold text-gray-900 mb-4">Advanced Assumptions</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="border-t border-gray-200 pt-6">
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="font-semibold text-gray-900">Adjust Assumptions</h3>
+                                <button
+                                    onClick={() => setShowAdvanced(false)}
+                                    className="text-sm text-gray-500 hover:text-gray-900"
+                                >
+                                    Hide
+                                </button>
+                            </div>
+
+                            <div className="space-y-6">
+                                {/* Retail vs Wholesale */}
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">Pull Through Rate</label>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <label className="text-sm font-medium text-gray-700">Retail vs Wholesale</label>
+                                        <span className="text-sm text-gray-500">{advancedInputs.retailPercent}% / {advancedInputs.wholesalePercent}%</span>
+                                    </div>
                                     <input
-                                        type="number"
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        value={advancedInputs.retailPercent}
+                                        onChange={(e) => {
+                                            const retail = Number(e.target.value);
+                                            onAdvancedInputsChange({ ...advancedInputs, retailPercent: retail, wholesalePercent: 100 - retail });
+                                        }}
+                                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-truv-blue"
+                                    />
+                                    <div className="flex justify-between text-xs text-gray-400 mt-1">
+                                        <span>Retail</span>
+                                        <span>Wholesale</span>
+                                    </div>
+                                </div>
+
+                                {/* Borrowers per App */}
+                                <div>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <label className="text-sm font-medium text-gray-700">Borrowers per Application</label>
+                                        <span className="text-sm text-gray-500">{advancedInputs.borrowersPerApp.toFixed(1)}</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="1"
+                                        max="2.5"
+                                        step="0.1"
+                                        value={advancedInputs.borrowersPerApp}
+                                        onChange={(e) => onAdvancedInputsChange({ ...advancedInputs, borrowersPerApp: Number(e.target.value) })}
+                                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-truv-blue"
+                                    />
+                                    <div className="flex justify-between text-xs text-gray-400 mt-1">
+                                        <span>1.0</span>
+                                        <span>2.5</span>
+                                    </div>
+                                </div>
+
+                                {/* End-to-End Conversion Rate */}
+                                <div>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <label className="text-sm font-medium text-gray-700">End-to-End Conversion Rate</label>
+                                        <span className="text-sm text-gray-500">{advancedInputs.endToEndCR}%</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="20"
+                                        max="80"
+                                        value={advancedInputs.endToEndCR}
+                                        onChange={(e) => onAdvancedInputsChange({ ...advancedInputs, endToEndCR: Number(e.target.value) })}
+                                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-truv-blue"
+                                    />
+                                    <div className="flex justify-between text-xs text-gray-400 mt-1">
+                                        <span>20%</span>
+                                        <span>80%</span>
+                                    </div>
+                                </div>
+
+                                {/* Pull-Through Rate */}
+                                <div>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <label className="text-sm font-medium text-gray-700">Pull-Through Rate</label>
+                                        <span className="text-sm text-gray-500">{advancedInputs.pullThroughRate}%</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="40"
+                                        max="90"
                                         value={advancedInputs.pullThroughRate}
                                         onChange={(e) => onAdvancedInputsChange({ ...advancedInputs, pullThroughRate: Number(e.target.value) })}
-                                        className="w-full p-2 border border-gray-200 rounded text-sm"
+                                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-truv-blue"
                                     />
+                                    <div className="flex justify-between text-xs text-gray-400 mt-1">
+                                        <span>40%</span>
+                                        <span>90%</span>
+                                    </div>
                                 </div>
+
+                                {/* W-2 Borrower Rate */}
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">W-2 Rate</label>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <label className="text-sm font-medium text-gray-700">W-2 Borrower Rate</label>
+                                        <span className="text-sm text-gray-500">{advancedInputs.w2Rate}%</span>
+                                    </div>
                                     <input
-                                        type="number"
+                                        type="range"
+                                        min="50"
+                                        max="95"
                                         value={advancedInputs.w2Rate}
                                         onChange={(e) => onAdvancedInputsChange({ ...advancedInputs, w2Rate: Number(e.target.value) })}
-                                        className="w-full p-2 border border-gray-200 rounded text-sm"
+                                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-truv-blue"
                                     />
+                                    <div className="flex justify-between text-xs text-gray-400 mt-1">
+                                        <span>50%</span>
+                                        <span>95%</span>
+                                    </div>
                                 </div>
                             </div>
-                            <button
-                                onClick={() => setShowAdvanced(false)}
-                                className="mt-4 text-sm text-gray-500 hover:text-gray-900 underline"
-                            >
-                                Hide Advanced Settings
-                            </button>
                         </div>
                     ) : (
                         <button
                             onClick={() => setShowAdvanced(true)}
-                            className="text-sm text-gray-500 hover:text-gray-900 underline flex items-center justify-center w-full"
+                            className="text-sm text-truv-blue hover:text-truv-blue-dark underline flex items-center justify-center w-full gap-1"
                         >
-                            View Advanced Assumptions
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M12 3v18M3 12h18"/>
+                            </svg>
+                            Adjust Assumptions
                         </button>
                     )}
 
