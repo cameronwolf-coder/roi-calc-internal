@@ -8,6 +8,24 @@ interface LeadModalProps {
     onSubmit: (data: LeadFormData) => void;
 }
 
+// Systems that Truv has native integrations with
+const INTEGRATED_LOS = ['encompass', 'bytepro', 'meridianlink', 'blackknight'];
+const INTEGRATED_POS = ['blend', 'encompassconsumerconnect', 'floify', 'simplenexus'];
+
+const LOS_NAMES: Record<string, string> = {
+    encompass: 'Encompass',
+    bytepro: 'Byte Pro',
+    meridianlink: 'MeridianLink',
+    blackknight: 'Black Knight'
+};
+
+const POS_NAMES: Record<string, string> = {
+    blend: 'Blend',
+    encompassconsumerconnect: 'Encompass Consumer Connect',
+    floify: 'Floify',
+    simplenexus: 'SimpleNexus'
+};
+
 export function LeadModal({ isOpen, onClose, onSubmit }: LeadModalProps) {
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState<LeadFormData>({
@@ -43,6 +61,25 @@ export function LeadModal({ isOpen, onClose, onSubmit }: LeadModalProps) {
     const inputClass = "w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-truv-blue focus:border-truv-blue outline-none transition-all text-gray-900";
     const selectClass = "w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-truv-blue focus:border-truv-blue outline-none transition-all text-gray-900 bg-white";
     const labelClass = "block text-sm font-medium text-gray-700 mb-1";
+
+    // Check if selected systems have integrations
+    const hasLosIntegration = INTEGRATED_LOS.includes(formData.losSystem);
+    const hasPosIntegration = INTEGRATED_POS.includes(formData.posSystem);
+    const hasAnyIntegration = hasLosIntegration || hasPosIntegration;
+
+    // Build integration message
+    const getIntegrationMessage = () => {
+        const systems: string[] = [];
+        if (hasLosIntegration) systems.push(LOS_NAMES[formData.losSystem]);
+        if (hasPosIntegration) systems.push(POS_NAMES[formData.posSystem]);
+
+        if (systems.length === 2) {
+            return `Truv has native integrations with ${systems[0]} and ${systems[1]}!`;
+        } else if (systems.length === 1) {
+            return `Truv has a native integration with ${systems[0]}!`;
+        }
+        return '';
+    };
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
@@ -187,6 +224,26 @@ export function LeadModal({ isOpen, onClose, onSubmit }: LeadModalProps) {
                                     </select>
                                 </div>
                             </div>
+
+                            {/* Integration Badge */}
+                            {hasAnyIntegration && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-xl"
+                                >
+                                    <div className="flex-shrink-0 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+                                            <polyline points="20 6 9 17 4 12"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-green-800">Great news!</p>
+                                        <p className="text-sm text-green-700">{getIntegrationMessage()}</p>
+                                        <p className="text-xs text-green-600 mt-1">This means faster implementation and seamless data flow.</p>
+                                    </div>
+                                </motion.div>
+                            )}
                         </div>
 
                         <div className="flex gap-3 mt-6">
