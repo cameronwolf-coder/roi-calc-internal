@@ -34,7 +34,7 @@ export function ResultsStep({
                     <span className="text-lg text-gray-500 font-normal ml-2">/ year</span>
                 </div>
                 <p className="text-gray-600">
-                    Based on {formatNumber(results.savingsPerLoan)} cost reduction per loan
+                    Based on {formatCurrency(results.savingsPerLoan)} cost reduction per loan
                 </p>
             </div>
 
