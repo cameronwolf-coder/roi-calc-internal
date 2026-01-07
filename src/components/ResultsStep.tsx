@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 import type { CalculationResults, AdvancedInputs } from '../types';
 import { formatCurrency, formatNumber, formatPercent } from '../utils/calculations';
+import { generateROIReport } from '../utils/pdfGenerator';
 
 interface ResultsStepProps {
     results: CalculationResults;
@@ -349,7 +350,7 @@ export function ResultsStep({
 
                     <div className="pt-4 space-y-3">
                         <button
-                            onClick={() => window.print()}
+                            onClick={() => generateROIReport(results, fundedLoans, advancedInputs)}
                             className="w-full bg-truv-blue text-white font-semibold py-4 rounded-full shadow-lg hover:bg-truv-blue-dark transition-all transform hover:scale-[1.02]"
                         >
                             Download Full Report
