@@ -27,10 +27,18 @@ export function ResultsStep({
     const [showAdvanced, setShowAdvanced] = useState(false);
     const [showCalculationDetails, setShowCalculationDetails] = useState(false);
     const [showScheduleModal, setShowScheduleModal] = useState(false);
+    const [showVerificationDetails, setShowVerificationDetails] = useState(false);
 
     // Calculate per-loan costs for explanation
     const currentCostPerLoan = fundedLoans > 0 ? results.currentCost / fundedLoans : 0;
     const truvCostPerLoan = fundedLoans > 0 ? results.futureCost / fundedLoans : 0;
+
+    // Calculate funnel metrics for explanation
+    const appsStarted = Math.round(fundedLoans / (advancedInputs.endToEndCR / 100));
+    const borrowersToVerify = Math.round(appsStarted * advancedInputs.borrowersPerApp);
+    const totalTruvVerifications = results.truvVOIEs + results.truvVOAs;
+    const totalVerifications = totalTruvVerifications + results.remainingTWNs;
+    const verificationsPerLoan = fundedLoans > 0 ? (totalVerifications / fundedLoans).toFixed(1) : '0';
 
     return (
         <motion.div
@@ -164,14 +172,70 @@ export function ResultsStep({
 
                     <div className="bg-gray-50 rounded-2xl p-6">
                         <div className="flex justify-between items-center mb-2">
-                            <h3 className="font-semibold text-gray-900">How Truv Handles Your Verifications</h3>
+                            <h3 className="font-semibold text-gray-900">Annual Verification Breakdown</h3>
                             <span className="text-sm text-green-600 font-medium bg-green-50 px-3 py-1 rounded-full">
                                 {formatPercent(results.manualReduction)} less TWN usage
                             </span>
                         </div>
-                        <p className="text-xs text-gray-500 mb-4">
-                            Estimated annual verification volume based on your loan count
-                        </p>
+                        <div className="flex items-center gap-2 mb-4">
+                            <p className="text-xs text-gray-500">
+                                ~{verificationsPerLoan} verifications per funded loan ({formatNumber(totalVerifications)} total/yr)
+                            </p>
+                            <button
+                                onClick={() => setShowVerificationDetails(!showVerificationDetails)}
+                                className="text-xs text-truv-blue hover:text-truv-blue-dark flex items-center gap-1"
+                            >
+                                <svg
+                                    width="12"
+                                    height="12"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    className={`transition-transform ${showVerificationDetails ? 'rotate-180' : ''}`}
+                                >
+                                    <path d="M6 9l6 6 6-6"/>
+                                </svg>
+                                {showVerificationDetails ? 'Hide' : 'Why?'}
+                            </button>
+                        </div>
+
+                        {showVerificationDetails && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                className="mb-4 p-4 bg-white rounded-xl border border-gray-200 text-xs"
+                            >
+                                <p className="font-medium text-gray-900 mb-3">Why more verifications than loans?</p>
+                                <div className="space-y-2 text-gray-600">
+                                    <div className="flex justify-between">
+                                        <span>Applications started (@ {advancedInputs.endToEndCR}% conversion)</span>
+                                        <span className="font-medium text-gray-900">{formatNumber(appsStarted)}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span>Borrowers to verify (@ {advancedInputs.borrowersPerApp} per app)</span>
+                                        <span className="font-medium text-gray-900">{formatNumber(borrowersToVerify)}</span>
+                                    </div>
+                                    <div className="border-t border-gray-100 pt-2 mt-2">
+                                        <p className="text-gray-500 italic">
+                                            Not every application gets funded. You verify borrowers early in the funnel,
+                                            but only {advancedInputs.endToEndCR}% of apps convert to funded loans. Plus, many
+                                            loans have co-borrowers ({advancedInputs.borrowersPerApp} avg).
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="mt-3 pt-3 border-t border-gray-100">
+                                    <p className="font-medium text-gray-700 mb-2">Truv success rates:</p>
+                                    <div className="grid grid-cols-2 gap-2 text-gray-600">
+                                        <div>• Income (VOIE): <span className="text-truv-blue font-medium">42%</span></div>
+                                        <div>• Assets (VOA): <span className="text-truv-blue font-medium">60%</span></div>
+                                    </div>
+                                    <p className="text-gray-500 mt-2 italic">
+                                        Remaining borrowers fall back to TWN ($62/each).
+                                    </p>
+                                </div>
+                            </motion.div>
+                        )}
 
                         <div className="space-y-3 text-sm">
                             <div className="flex justify-between items-start p-3 bg-white rounded-lg border border-truv-blue/20">
@@ -186,7 +250,10 @@ export function ResultsStep({
                                         <p className="text-xs text-gray-500">Direct payroll connections via 1,700+ employers</p>
                                     </div>
                                 </div>
-                                <span className="font-semibold text-truv-blue">{formatNumber(results.truvVOIEs)}</span>
+                                <div className="text-right">
+                                    <span className="font-semibold text-truv-blue">{formatNumber(results.truvVOIEs)}</span>
+                                    <span className="text-xs text-gray-400 ml-1">/yr</span>
+                                </div>
                             </div>
                             <div className="flex justify-between items-start p-3 bg-white rounded-lg border border-truv-blue/20">
                                 <div className="flex items-start gap-3">
@@ -200,7 +267,10 @@ export function ResultsStep({
                                         <p className="text-xs text-gray-500">Direct bank connections via 16,000+ institutions</p>
                                     </div>
                                 </div>
-                                <span className="font-semibold text-truv-blue">{formatNumber(results.truvVOAs)}</span>
+                                <div className="text-right">
+                                    <span className="font-semibold text-truv-blue">{formatNumber(results.truvVOAs)}</span>
+                                    <span className="text-xs text-gray-400 ml-1">/yr</span>
+                                </div>
                             </div>
                             <div className="flex justify-between items-start p-3 bg-gray-100 rounded-lg">
                                 <div className="flex items-start gap-3">
@@ -215,7 +285,10 @@ export function ResultsStep({
                                         <p className="text-xs text-gray-500">Manual process when direct isn't available</p>
                                     </div>
                                 </div>
-                                <span className="font-medium text-gray-600">{formatNumber(results.remainingTWNs)}</span>
+                                <div className="text-right">
+                                    <span className="font-medium text-gray-600">{formatNumber(results.remainingTWNs)}</span>
+                                    <span className="text-xs text-gray-400 ml-1">/yr</span>
+                                </div>
                             </div>
                         </div>
                     </div>
