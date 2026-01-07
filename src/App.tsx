@@ -17,6 +17,7 @@ function App() {
   const [isCalculating, setIsCalculating] = useState(false);
   const [isGated, setIsGated] = useState(true);
   const [showLeadModal, setShowLeadModal] = useState(false);
+  const [companyName, setCompanyName] = useState('');
 
   const [formData, setFormData] = useState<FormData>({
     fundedLoans: 0,
@@ -91,6 +92,7 @@ function App() {
 
   const handleLeadSubmit = (leadData: LeadFormData) => {
     console.log('Lead submitted:', leadData);
+    setCompanyName(leadData.companyName);
     setShowLeadModal(false);
     setIsGated(false);
   };
@@ -141,6 +143,7 @@ function App() {
                 onBack={() => setStep(1)}
                 advancedInputs={advancedInputs}
                 onAdvancedInputsChange={handleAdvancedInputsChange}
+                companyName={companyName}
               />
             )}
           </AnimatePresence>

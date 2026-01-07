@@ -22,6 +22,7 @@ export interface AdvancedInputs {
 export interface LeadFormData {
   firstName: string;
   lastName: string;
+  companyName: string;
   email: string;
   phone: string;
   role: string;

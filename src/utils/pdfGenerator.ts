@@ -6,7 +6,8 @@ import { Analytics } from './analytics';
 export function generateROIReport(
     results: CalculationResults,
     fundedLoans: number,
-    advancedInputs: AdvancedInputs
+    advancedInputs: AdvancedInputs,
+    companyName: string
 ): void {
     // 1. Track the download event
     Analytics.trackEvent('roi_pdf_download');
@@ -85,10 +86,10 @@ export function generateROIReport(
         }
 
         .main-content {
-            padding: 40px 56px 40px 56px;
+            padding: 32px 56px 50px 56px;
             display: grid;
             grid-template-columns: 1fr 1.3fr;
-            gap: 60px;
+            gap: 40px;
         }
 
         .col-left {
@@ -155,12 +156,12 @@ export function generateROIReport(
 
         h2 {
             font-family: 'Gilroy', sans-serif;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 700;
             color: #64748B;
             text-transform: uppercase;
             letter-spacing: 0.15em;
-            margin: 0 0 32px 0;
+            margin: 0 0 16px 0;
             display: flex;
             align-items: center;
         }
@@ -174,7 +175,7 @@ export function generateROIReport(
         }
 
         .capability-group {
-            margin-bottom: 32px;
+            margin-bottom: 20px;
         }
 
         .cap-title {
@@ -215,10 +216,10 @@ export function generateROIReport(
         .tech-specs {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 40px;
+            gap: 12px;
+            margin-top: 16px;
             border-top: 1px solid #E2E8F0;
-            padding-top: 24px;
+            padding-top: 12px;
         }
 
         .spec-item strong {
@@ -242,12 +243,14 @@ export function generateROIReport(
             bottom: 0;
             left: 0;
             right: 0;
-            padding: 0 56px 40px 56px;
+            padding: 16px 56px 24px 56px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 11px;
             color: #94A3B8;
+            background: white;
+            z-index: 10;
         }
     `;
 
@@ -262,7 +265,7 @@ export function generateROIReport(
                     <div style="position: absolute; top: 40px; right: 40px; z-index: 10;">
                         ${logoSvg}
                     </div>
-                    <div class="header-title">ROI Analysis Report</div>
+                    <div class="header-title">ROI Analysis Report${companyName ? ` for ${companyName}` : ''}</div>
                 </div>
 
                 <div class="main-content">
@@ -315,29 +318,61 @@ export function generateROIReport(
                             </div>
                         </div>
 
-                        <h2>Verification Logic</h2>
+                        <h2>Annual Verification Breakdown</h2>
 
-                        <div class="capability-group">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed #E2E8F0;">
-                                <div>
-                                    <div style="font-weight: 600; color: #0F172A;">Truv Income (VOIE)</div>
-                                    <div style="font-size: 12px; color: #64748B;">Direct payroll connections</div>
-                                </div>
-                                <div style="font-weight: 700; color: #2C64E3;">${formatNumber(results.truvVOIEs)}</div>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed #E2E8F0;">
-                                <div>
-                                    <div style="font-weight: 600; color: #0F172A;">Truv Assets (VOA)</div>
-                                    <div style="font-size: 12px; color: #64748B;">Direct financial institution connections</div>
-                                </div>
-                                <div style="font-weight: 700; color: #2C64E3;">${formatNumber(results.truvVOAs)}</div>
+                        <!-- Funnel explanation box -->
+                        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                            <div style="font-weight: 600; color: #0F172A; font-size: 11px; margin-bottom: 8px;">Why more verifications than loans?</div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span style="font-size: 10px; color: #64748B;">Applications started (@ ${advancedInputs.endToEndCR}% conversion)</span>
+                                <span style="font-size: 10px; font-weight: 600; color: #0F172A;">${formatNumber(Math.round(fundedLoans / (advancedInputs.endToEndCR / 100)))}</span>
                             </div>
                             <div style="display: flex; justify-content: space-between;">
-                                <div>
-                                    <div style="font-weight: 600; color: #64748B;">TWN Fallback</div>
-                                    <div style="font-size: 12px; color: #64748B;">Remaining manual verification</div>
+                                <span style="font-size: 10px; color: #64748B;">Borrowers to verify (@ ${advancedInputs.borrowersPerApp} per app)</span>
+                                <span style="font-size: 10px; font-weight: 600; color: #0F172A;">${formatNumber(Math.round(Math.round(fundedLoans / (advancedInputs.endToEndCR / 100)) * advancedInputs.borrowersPerApp))}</span>
+                            </div>
+                        </div>
+
+                        <!-- Verification cards -->
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <div style="background: white; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 28px; height: 28px; background: #EFF6FF; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2C64E3" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
                                 </div>
-                                <div style="font-weight: 700; color: #64748B;">${formatNumber(results.remainingTWNs)}</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; color: #0F172A; font-size: 11px;">Income verified by Truv</div>
+                                    <div style="font-size: 9px; color: #64748B;">Direct payroll connections</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span style="font-weight: 700; color: #22C55E; font-size: 13px;">${formatNumber(results.truvVOIEs)}</span>
+                                    <span style="font-size: 9px; color: #64748B;"> /yr</span>
+                                </div>
+                            </div>
+                            <div style="background: white; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 28px; height: 28px; background: #EFF6FF; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2C64E3" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; color: #0F172A; font-size: 11px;">Assets verified by Truv</div>
+                                    <div style="font-size: 9px; color: #64748B;">Direct bank connections</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span style="font-weight: 700; color: #22C55E; font-size: 13px;">${formatNumber(results.truvVOAs)}</span>
+                                    <span style="font-size: 9px; color: #64748B;"> /yr</span>
+                                </div>
+                            </div>
+                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 28px; height: 28px; background: #F1F5F9; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; color: #64748B; font-size: 11px;">TWN fallback required</div>
+                                    <div style="font-size: 9px; color: #94A3B8;">Manual process when direct isn't available</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span style="font-weight: 700; color: #64748B; font-size: 13px;">${formatNumber(results.remainingTWNs)}</span>
+                                    <span style="font-size: 9px; color: #94A3B8;"> /yr</span>
+                                </div>
                             </div>
                         </div>
 
@@ -393,17 +428,6 @@ export function generateROIReport(
                         <p class="narrative-p">
                             Our platform is built for speed and security, ensuring that every data point retrieved is verified directly from the source—eliminating the risk of manipulated documents.
                         </p>
-
-                        <div style="display: flex; gap: 12px; margin-top: 24px;">
-                            <div style="flex: 1; background: #F0F9FF; padding: 16px; border-radius: 8px; text-align: center;">
-                                <div style="font-size: 24px; font-weight: 700; color: #2C64E3;">96%</div>
-                                <div style="font-size: 11px; color: #64748B; text-transform: uppercase;">Workforce Coverage</div>
-                            </div>
-                            <div style="flex: 1; background: #F0F9FF; padding: 16px; border-radius: 8px; text-align: center;">
-                                <div style="font-size: 24px; font-weight: 700; color: #2C64E3;">80%</div>
-                                <div style="font-size: 11px; color: #64748B; text-transform: uppercase;">Cost Savings</div>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- RIGHT COLUMN -->

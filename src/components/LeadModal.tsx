@@ -52,6 +52,7 @@ export function LeadModal({ isOpen, onClose, onSubmit }: LeadModalProps) {
     const [formData, setFormData] = useState<LeadFormData>({
         firstName: '',
         lastName: '',
+        companyName: '',
         email: '',
         phone: '',
         role: '',
@@ -125,7 +126,7 @@ export function LeadModal({ isOpen, onClose, onSubmit }: LeadModalProps) {
     const labelClass = "block text-sm font-medium text-gray-700 mb-1";
 
     // Check if form is valid
-    const isFormValid = formData.firstName && formData.lastName && formData.email && formData.phone && formData.role && formData.jobFunction;
+    const isFormValid = formData.firstName && formData.lastName && formData.companyName && formData.email && formData.phone && formData.role && formData.jobFunction;
 
     // Check if selected systems have integrations
     const hasLosIntegration = INTEGRATED_LOS.includes(formData.losSystem);
@@ -158,7 +159,7 @@ export function LeadModal({ isOpen, onClose, onSubmit }: LeadModalProps) {
             >
                 <form onSubmit={handleSubmit}>
                     <div className="text-center mb-6">
-                        <h2 className="text-3xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'serif', fontStyle: 'italic' }}>Almost done!</h2>
+                        <h2 className="text-3xl font-bold text-gray-900 mb-2">Almost done!</h2>
                     </div>
 
                     <div className="space-y-4">
@@ -186,6 +187,19 @@ export function LeadModal({ isOpen, onClose, onSubmit }: LeadModalProps) {
                                     className={inputClass}
                                 />
                             </div>
+                        </div>
+
+                        {/* Company Name */}
+                        <div>
+                            <label className={labelClass}>Company Name</label>
+                            <input
+                                name="companyName"
+                                placeholder="Company Name"
+                                required
+                                value={formData.companyName}
+                                onChange={handleChange}
+                                className={inputClass}
+                            />
                         </div>
 
                         {/* Work Email */}

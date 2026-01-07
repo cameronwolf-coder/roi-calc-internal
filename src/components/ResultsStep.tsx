@@ -13,6 +13,7 @@ interface ResultsStepProps {
     onBack: () => void;
     advancedInputs: AdvancedInputs;
     onAdvancedInputsChange: (inputs: AdvancedInputs) => void;
+    companyName: string;
 }
 
 export function ResultsStep({
@@ -22,7 +23,8 @@ export function ResultsStep({
     onUnlock,
     onBack,
     advancedInputs,
-    onAdvancedInputsChange
+    onAdvancedInputsChange,
+    companyName
 }: ResultsStepProps) {
     const [showAdvanced, setShowAdvanced] = useState(false);
     const [showCalculationDetails, setShowCalculationDetails] = useState(false);
@@ -486,7 +488,7 @@ export function ResultsStep({
 
                     <div className="pt-4 space-y-3">
                         <button
-                            onClick={() => generateROIReport(results, fundedLoans, advancedInputs)}
+                            onClick={() => generateROIReport(results, fundedLoans, advancedInputs, companyName)}
                             className="w-full bg-truv-blue text-white font-semibold py-4 rounded-full shadow-lg hover:bg-truv-blue-dark transition-all transform hover:scale-[1.02]"
                         >
                             Download Full Report
