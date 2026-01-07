@@ -1,42 +1,158 @@
-
-import { useState, useMemo } from 'react';
-import { RoiInputForm } from './components/RoiInputForm';
-import { RoiResults } from './components/RoiResults';
-import type { ROIInputs } from './utils/roiCalculator';
-import { calculateROI } from './utils/roiCalculator';
+import { useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
+import { Header } from './components/Header';
+import { UseCaseStep } from './components/UseCaseStep';
+import { InputStep } from './components/InputStep';
+import { CostMethodStep } from './components/CostMethodStep';
+import { ResultsStep } from './components/ResultsStep';
+import { LeadModal } from './components/LeadModal';
+import { CalculatingSpinner } from './components/CalculatingSpinner';
+import { calculateROI, DEFAULT_ADVANCED_INPUTS } from './utils/calculations';
+import type { FormData, CostMethod, Step, CalculationResults, LeadFormData, AdvancedInputs } from './types';
 
 function App() {
-  const [inputs, setInputs] = useState<ROIInputs>({
-    fundedLoans: 2500,
-    pullThroughRate: 0.7,
-    e2eConversionRate: 0.5,
-    borrowersPerApp: 1.5,
-    w2BorrowerRate: 0.75,
+  const [step, setStep] = useState<Step>(0);
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [isGated, setIsGated] = useState(true);
+  const [showLeadModal, setShowLeadModal] = useState(false);
+
+  const [formData, setFormData] = useState<FormData>({
+    fundedLoans: 0,
+    industry: 'mortgage' // Default, updated by UseCaseStep
   });
 
-  const results = useMemo(() => calculateROI(inputs), [inputs]);
+  const [costMethod, setCostMethod] = useState<CostMethod['id']>('benchmark');
+  const [customCost, setCustomCost] = useState<number | undefined>();
+  const [advancedInputs, setAdvancedInputs] = useState<AdvancedInputs>(DEFAULT_ADVANCED_INPUTS);
+
+  const [results, setResults] = useState<CalculationResults | null>(null);
+
+  // Recalculate when advanced inputs change
+  const handleAdvancedInputsChange = (newInputs: AdvancedInputs) => {
+    setAdvancedInputs(newInputs);
+    const calculatedResults = calculateROI(
+      formData,
+      newInputs,
+      costMethod,
+      customCost
+    );
+    setResults(calculatedResults);
+  };
+
+  const handleUseCaseSelect = (industry: FormData['industry']) => {
+    setFormData(prev => ({ ...prev, industry }));
+    setStep(1);
+  };
+
+  const handleCalculate = () => {
+    setIsCalculating(true);
+
+    // Simulate calculation time for effect
+    setTimeout(() => {
+      setStep(2);
+      setIsCalculating(false);
+    }, 1200);
+  };
+
+  const handleCostMethodContinue = () => {
+    setIsCalculating(true);
+
+    setTimeout(() => {
+      const calculatedResults = calculateROI(
+        formData,
+        advancedInputs,
+        costMethod,
+        customCost
+      );
+      setResults(calculatedResults);
+      setStep(3);
+      setIsCalculating(false);
+    }, 1500);
+  };
+
+  const handleUnlock = () => {
+    setShowLeadModal(true);
+  };
+
+  const handleLeadSubmit = (leadData: LeadFormData) => {
+    console.log('Lead submitted:', leadData);
+    setShowLeadModal(false);
+    setIsGated(false);
+  };
 
   return (
-    <div className="min-h-screen py-16 px-4 sm:px-6 lg:px-8 bg-background font-sans">
-      <div className="max-w-6xl mx-auto">
-        <header className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Truv <span className="text-truv-blue">ROI Calculator</span>
-          </h1>
-          <p className="text-lg text-gray-600">
-            Estimate your savings by switching to the modern verification platform.
-          </p>
-        </header>
+    <div className="min-h-screen bg-white">
+      <Header />
 
-        <main className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          <div className="lg:col-span-5">
-            <RoiInputForm inputs={inputs} onChange={setInputs} />
-          </div>
-          <div className="lg:col-span-7">
-            <RoiResults results={results} />
-          </div>
-        </main>
+      <main className="max-w-[680px] mx-auto px-6 py-5 pb-0">
+        <div className="bg-white p-0">
+          <AnimatePresence mode="wait">
+            {step === 0 && (
+              <UseCaseStep
+                key="use-case"
+                onSelect={handleUseCaseSelect}
+              />
+            )}
+
+            {step === 1 && (
+              <InputStep
+                key="input"
+                formData={formData}
+                onChange={setFormData}
+                onCalculate={handleCalculate}
+              />
+            )}
+
+            {step === 2 && (
+              <CostMethodStep
+                key="cost"
+                selectedMethod={costMethod}
+                customCost={customCost}
+                onSelectMethod={setCostMethod}
+                onCustomCostChange={setCustomCost}
+                onContinue={handleCostMethodContinue}
+              />
+            )}
+
+            {step === 3 && results && (
+              <ResultsStep
+                key="results"
+                results={results}
+                isGated={isGated}
+                onUnlock={handleUnlock}
+                advancedInputs={advancedInputs}
+                onAdvancedInputsChange={handleAdvancedInputsChange}
+              />
+            )}
+          </AnimatePresence>
+        </div>
+      </main>
+
+      {/* Partner Logos Footer */}
+      <footer className="partner-logos">
+        <span className="partner-logo-text">accurate.</span>
+        <span className="partner-logo-text green">Associated Bank</span>
+        <span className="partner-logo-text red">AFN</span>
+        <span className="partner-logo-text">Happy Money</span>
+        <span className="partner-logo-text blue">Compass Mortgage</span>
+      </footer>
+      <div className="privacy-notice">
+        By clicking "Continue" you agree to Truv's <a href="#">Privacy Notice</a>.
       </div>
+
+      <AnimatePresence>
+        <CalculatingSpinner isVisible={isCalculating} />
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showLeadModal && (
+          <LeadModal
+            isOpen={showLeadModal}
+            onClose={() => setShowLeadModal(false)}
+            onSubmit={handleLeadSubmit}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

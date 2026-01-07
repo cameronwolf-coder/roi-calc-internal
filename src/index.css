@@ -23,3 +23,51 @@
 body {
   @apply bg-background text-gray-900 font-sans antialiased;
 }
+
+/* Partner Logos Footer */
+.partner-logos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+  padding: 24px 20px;
+  border-top: 1px solid #e5e5e5;
+  margin-top: 40px;
+  flex-wrap: wrap;
+}
+
+.partner-logo-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.partner-logo-text.green {
+  color: #166534;
+}
+
+.partner-logo-text.red {
+  color: #dc2626;
+}
+
+.partner-logo-text.blue {
+  color: #2563eb;
+}
+
+.privacy-notice {
+  text-align: center;
+  font-size: 13px;
+  color: #6b7280;
+  padding: 16px 20px 32px;
+}
+
+.privacy-notice a {
+  color: #171717;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.privacy-notice a:hover {
+  text-decoration: underline;
+}
