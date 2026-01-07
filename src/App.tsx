@@ -118,6 +118,7 @@ function App() {
               <ResultsStep
                 key="results"
                 results={results}
+                fundedLoans={formData.fundedLoans}
                 isGated={isGated}
                 onUnlock={handleUnlock}
                 advancedInputs={advancedInputs}

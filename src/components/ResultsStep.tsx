@@ -5,6 +5,7 @@ import { formatCurrency, formatNumber, formatPercent } from '../utils/calculatio
 
 interface ResultsStepProps {
     results: CalculationResults;
+    fundedLoans: number;
     isGated: boolean;
     onUnlock: () => void;
     advancedInputs: AdvancedInputs;
@@ -13,6 +14,7 @@ interface ResultsStepProps {
 
 export function ResultsStep({
     results,
+    fundedLoans,
     isGated,
     onUnlock,
     advancedInputs,
@@ -34,7 +36,7 @@ export function ResultsStep({
                     <span className="text-lg text-gray-500 font-normal ml-2">/ year</span>
                 </div>
                 <p className="text-gray-600">
-                    Based on {formatCurrency(results.savingsPerLoan)} cost reduction per loan
+                    Based on {formatCurrency(results.savingsPerLoan)} cost reduction per loan at {formatNumber(fundedLoans)} loans/year
                 </p>
             </div>
 
