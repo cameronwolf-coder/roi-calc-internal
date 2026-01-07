@@ -30,6 +30,24 @@ const JOB_FUNCTION_OPTIONS = [
     { value: 'other', label: 'Other' }
 ];
 
+// Systems that Truv has native integrations with
+const INTEGRATED_LOS = ['encompass', 'bytepro', 'meridianlink', 'blackknight'];
+const INTEGRATED_POS = ['blend', 'encompassconsumerconnect', 'floify', 'ncino'];
+
+const LOS_NAMES: Record<string, string> = {
+    encompass: 'Encompass',
+    bytepro: 'Byte Pro',
+    meridianlink: 'MeridianLink',
+    blackknight: 'Black Knight'
+};
+
+const POS_NAMES: Record<string, string> = {
+    blend: 'Blend',
+    encompassconsumerconnect: 'Encompass Consumer Connect',
+    floify: 'Floify',
+    ncino: 'nCino'
+};
+
 export function LeadModal({ isOpen, onClose, onSubmit }: LeadModalProps) {
     const [formData, setFormData] = useState<LeadFormData>({
         firstName: '',
@@ -108,6 +126,25 @@ export function LeadModal({ isOpen, onClose, onSubmit }: LeadModalProps) {
 
     // Check if form is valid
     const isFormValid = formData.firstName && formData.lastName && formData.email && formData.phone && formData.role && formData.jobFunction;
+
+    // Check if selected systems have integrations
+    const hasLosIntegration = INTEGRATED_LOS.includes(formData.losSystem);
+    const hasPosIntegration = INTEGRATED_POS.includes(formData.posSystem);
+    const hasAnyIntegration = hasLosIntegration || hasPosIntegration;
+
+    // Build integration message
+    const getIntegrationMessage = () => {
+        const systems: string[] = [];
+        if (hasLosIntegration) systems.push(LOS_NAMES[formData.losSystem]);
+        if (hasPosIntegration) systems.push(POS_NAMES[formData.posSystem]);
+
+        if (systems.length === 2) {
+            return `Truv has native integrations with ${systems[0]} and ${systems[1]}!`;
+        } else if (systems.length === 1) {
+            return `Truv has a native integration with ${systems[0]}!`;
+        }
+        return '';
+    };
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
@@ -212,6 +249,62 @@ export function LeadModal({ isOpen, onClose, onSubmit }: LeadModalProps) {
                                 </select>
                             </div>
                         </div>
+
+                        {/* LOS / POS Systems */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className={labelClass}>LOS System</label>
+                                <select
+                                    name="losSystem"
+                                    value={formData.losSystem}
+                                    onChange={handleChange}
+                                    className={selectClass}
+                                >
+                                    <option value="">Select LOS</option>
+                                    <option value="encompass">Encompass (ICE)</option>
+                                    <option value="bytepro">Byte Pro</option>
+                                    <option value="meridianlink">MeridianLink</option>
+                                    <option value="blackknight">Black Knight</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className={labelClass}>POS System</label>
+                                <select
+                                    name="posSystem"
+                                    value={formData.posSystem}
+                                    onChange={handleChange}
+                                    className={selectClass}
+                                >
+                                    <option value="">Select POS</option>
+                                    <option value="blend">Blend</option>
+                                    <option value="encompassconsumerconnect">Encompass CC</option>
+                                    <option value="floify">Floify</option>
+                                    <option value="ncino">nCino</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Integration Badge */}
+                        {hasAnyIntegration && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-xl"
+                            >
+                                <div className="flex-shrink-0 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p className="text-sm font-semibold text-green-800">Great news!</p>
+                                    <p className="text-sm text-green-700">{getIntegrationMessage()}</p>
+                                    <p className="text-xs text-green-600 mt-1">This means faster implementation and seamless data flow.</p>
+                                </div>
+                            </motion.div>
+                        )}
 
                         {/* Comments */}
                         <div>
