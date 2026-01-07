@@ -9,6 +9,8 @@ import { LeadModal } from './components/LeadModal';
 import { CalculatingSpinner } from './components/CalculatingSpinner';
 import { calculateROI, DEFAULT_ADVANCED_INPUTS } from './utils/calculations';
 import type { FormData, CostMethod, Step, CalculationResults, LeadFormData, AdvancedInputs } from './types';
+import { Analytics } from './utils/analytics';
+import { useEffect } from 'react';
 
 function App() {
   const [step, setStep] = useState<Step>(0);
@@ -38,6 +40,19 @@ function App() {
     );
     setResults(calculatedResults);
   };
+
+  // Track step changes (Funnel tracking)
+  useEffect(() => {
+    const stepNames = ['/use-case', '/input-step', '/cost-method', '/results'];
+    const currentPath = stepNames[step];
+
+    Analytics.trackPageview(currentPath);
+    Analytics.trackEvent(`roi_step_${step}_view`);
+
+    if (step === 3) {
+      Analytics.trackEvent('roi_results_viewed');
+    }
+  }, [step]);
 
   const handleUseCaseSelect = (industry: FormData['industry']) => {
     setFormData(prev => ({ ...prev, industry }));

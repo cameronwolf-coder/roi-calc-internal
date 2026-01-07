@@ -1,12 +1,16 @@
 import html2pdf from 'html2pdf.js';
 import type { CalculationResults, AdvancedInputs } from '../types';
 import { formatCurrency, formatNumber, formatPercent } from './calculations';
+import { Analytics } from './analytics';
 
 export function generateROIReport(
     results: CalculationResults,
     fundedLoans: number,
     advancedInputs: AdvancedInputs
 ): void {
+    // 1. Track the download event
+    Analytics.trackEvent('roi_pdf_download');
+
     // Create container element
     const container = document.createElement('div');
     container.style.position = 'fixed';
@@ -271,7 +275,7 @@ export function generateROIReport(
                         </div>
 
                         <p class="narrative-p">
-                            Traditional verification methods are manual, slow, and expensive. By leveraging Truv's direct payroll connections, you can reduce reliance on high-cost bureau data (TWN) by ${Math.round(results.manualReduction * 100)}%.
+                            Traditional verification methods are manual, slow, and expensive. By leveraging Truv's direct payroll connections, you can reduce reliance on high-cost bureau data (TWN) by ${Math.round(results.manualReduction)}%.
                         </p>
 
                         <div class="stat-block">

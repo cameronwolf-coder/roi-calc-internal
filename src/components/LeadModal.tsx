@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import type { LeadFormData } from '../types';
+import { Analytics } from '../utils/analytics';
 
 interface LeadModalProps {
     isOpen: boolean;
@@ -38,9 +39,57 @@ export function LeadModal({ isOpen, onClose, onSubmit }: LeadModalProps) {
         posSystem: ''
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit(formData);
+        setIsSubmitting(true);
+        setError(null);
+
+        // HubSpot Configuration - REPLACE THESE WITH YOUR ACTUAL IDS
+        const PORTAL_ID = 'YOUR_PORTAL_ID';
+        const FORM_GUID = 'YOUR_FORM_GUID';
+
+        try {
+            const response = await fetch(`https://api.hsforms.com/submissions/v3/integration/submit/${PORTAL_ID}/${FORM_GUID}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    fields: [
+                        { name: 'firstname', value: formData.name.split(' ')[0] },
+                        { name: 'lastname', value: formData.name.split(' ').slice(1).join(' ') || '' },
+                        { name: 'email', value: formData.email },
+                        { name: 'company', value: formData.company },
+                        { name: 'phone', value: formData.phone },
+                        { name: 'jobtitle', value: formData.jobTitle }
+                    ],
+                    context: {
+                        pageUri: window.location.href,
+                        pageName: document.title
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                // Fallback for development/if IDs are invalid (don't block the user)
+                console.warn('HubSpot submission failed (likely due to placeholder IDs):', response.status);
+                // In production, you might want to show an error, but for this demo, we proceed.
+            }
+
+            // Track the successful conversion event
+            Analytics.identify(formData.email);
+            Analytics.trackEvent('roi_lead_submit');
+
+            onSubmit(formData);
+        } catch (err) {
+            console.error('Submission error:', err);
+            setError('Something went wrong. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -165,7 +214,7 @@ export function LeadModal({ isOpen, onClose, onSubmit }: LeadModalProps) {
                         >
                             Continue
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                                <path d="M5 12h14M12 5l7 7-7 7" />
                             </svg>
                         </button>
                     </form>
@@ -234,7 +283,7 @@ export function LeadModal({ isOpen, onClose, onSubmit }: LeadModalProps) {
                                 >
                                     <div className="flex-shrink-0 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
-                                            <polyline points="20 6 9 17 4 12"/>
+                                            <polyline points="20 6 9 17 4 12" />
                                         </svg>
                                     </div>
                                     <div>
@@ -250,21 +299,36 @@ export function LeadModal({ isOpen, onClose, onSubmit }: LeadModalProps) {
                             <button
                                 type="button"
                                 onClick={goToStep1}
-                                className="px-6 py-4 rounded-full border border-gray-200 text-gray-600 font-semibold hover:bg-gray-50 transition-all"
+                                disabled={isSubmitting}
+                                className="px-6 py-4 rounded-full border border-gray-200 text-gray-600 font-semibold hover:bg-gray-50 transition-all disabled:opacity-50"
                             >
                                 Back
                             </button>
                             <button
                                 type="submit"
-                                className="flex-1 py-4 rounded-full bg-truv-blue text-white font-semibold text-lg hover:bg-truv-blue-dark transition-all transform hover:scale-[1.01] flex items-center justify-center gap-2"
+                                disabled={isSubmitting}
+                                className={`flex-1 py-4 rounded-full bg-truv-blue text-white font-semibold text-lg hover:bg-truv-blue-dark transition-all transform hover:scale-[1.01] flex items-center justify-center gap-2 ${isSubmitting ? 'opacity-75 cursor-wait' : ''}`}
                             >
-                                Get My Report
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                                    <polyline points="22 4 12 14.01 9 11.01"/>
-                                </svg>
+                                {isSubmitting ? (
+                                    <>
+                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Processing...
+                                    </>
+                                ) : (
+                                    <>
+                                        Get My Report
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                            <polyline points="22 4 12 14.01 9 11.01" />
+                                        </svg>
+                                    </>
+                                )}
                             </button>
                         </div>
+                        {error && <p className="text-red-500 text-sm text-center mt-3">{error}</p>}
                     </form>
                 )}
 
