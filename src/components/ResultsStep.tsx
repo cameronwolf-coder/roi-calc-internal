@@ -21,6 +21,11 @@ export function ResultsStep({
     onAdvancedInputsChange
 }: ResultsStepProps) {
     const [showAdvanced, setShowAdvanced] = useState(false);
+    const [showCalculationDetails, setShowCalculationDetails] = useState(false);
+
+    // Calculate per-loan costs for explanation
+    const currentCostPerLoan = fundedLoans > 0 ? results.currentCost / fundedLoans : 0;
+    const truvCostPerLoan = fundedLoans > 0 ? results.futureCost / fundedLoans : 0;
 
     return (
         <motion.div
@@ -29,15 +34,64 @@ export function ResultsStep({
             className="space-y-8"
         >
             {/* Always visible: Headline savings */}
-            <div className="text-center space-y-2">
+            <div className="text-center space-y-3">
                 <h2 className="text-3xl font-bold text-dark">Your Potential Savings</h2>
                 <div className="text-5xl font-bold text-truv-blue tracking-tight py-4">
                     {formatCurrency(results.annualSavings)}
                     <span className="text-lg text-gray-500 font-normal ml-2">/ year</span>
                 </div>
                 <p className="text-gray-600">
-                    Based on {formatCurrency(results.savingsPerLoan)} cost reduction per loan at {formatNumber(fundedLoans)} loans/year
+                    Based on a <span className="font-semibold text-gray-900">{formatCurrency(results.savingsPerLoan)}</span> cost reduction per loan at <span className="font-semibold text-gray-900">{formatNumber(fundedLoans)}</span> loans/year
                 </p>
+
+                {/* Expandable calculation explanation */}
+                <div className="pt-2">
+                    <button
+                        onClick={() => setShowCalculationDetails(!showCalculationDetails)}
+                        className="inline-flex items-center gap-1 text-sm text-truv-blue hover:text-truv-blue-dark transition-colors"
+                    >
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            className={`transition-transform ${showCalculationDetails ? 'rotate-180' : ''}`}
+                        >
+                            <path d="M6 9l6 6 6-6"/>
+                        </svg>
+                        {showCalculationDetails ? 'Hide calculation' : 'How we calculated this'}
+                    </button>
+
+                    {showCalculationDetails && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="mt-4 p-4 bg-gray-50 rounded-xl text-left text-sm"
+                        >
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-600">Your current cost per loan</span>
+                                    <span className="font-medium text-gray-900">{formatCurrency(Math.round(currentCostPerLoan))}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-600">Truv cost per loan</span>
+                                    <span className="font-medium text-truv-blue">{formatCurrency(Math.round(truvCostPerLoan))}</span>
+                                </div>
+                                <div className="border-t border-gray-200 pt-3 flex justify-between items-center">
+                                    <span className="font-medium text-gray-900">Savings per loan</span>
+                                    <span className="font-bold text-green-600">{formatCurrency(results.savingsPerLoan)}</span>
+                                </div>
+                                <p className="text-xs text-gray-500 pt-2">
+                                    Current costs include VOA fees ($10/each) and TWN fees ($62/each) based on industry conversion rates.
+                                    Truv pricing uses PFL bundle pricing plus fallback TWN costs for verifications that require it.
+                                </p>
+                            </div>
+                        </motion.div>
+                    )}
+                </div>
             </div>
 
             {/* Gated Content Section */}
