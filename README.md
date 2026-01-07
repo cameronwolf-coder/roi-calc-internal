@@ -1,85 +1,73 @@
-# Truv Brain
+# React + TypeScript + Vite
 
-**Core Knowledge Base for Product Marketing**
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-The essential reference for Truv positioning, messaging, proof points, and brand voice.
+Currently, two official plugins are available:
 
----
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Quick Start
+## React Compiler
 
-| I need to... | Go to |
-|--------------|-------|
-| Understand what Truv does | [Company Overview](docs/overview.md) |
-| Write copy that sounds like Truv | [Voice Guide](docs/voice-guide.md) |
-| Find customer results and quotes | [Proof Points](docs/proof-points.md) |
-| Understand our buyers | [Personas](docs/personas.md) |
-| Get product details | [Products](docs/products.md) |
-| Check brand colors/fonts | [Brand Guidelines](docs/brand-guidelines.md) |
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
----
+## Expanding the ESLint configuration
 
-## Key Numbers
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-| Metric | Value |
-|--------|-------|
-| Cost savings | Up to 80% vs. instant databases |
-| Margin increase | $350 per closed loan |
-| Workforce coverage | 96% of US workers |
-| Borrower experience | 30 seconds |
-| VOIE conversion | 65-70%+ |
-| Fraud detection | 99.99% |
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
----
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
-## Documents
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
 
-### [Company Overview](docs/overview.md)
-What Truv is, core value proposition, trust signals, target industries, competitive positioning.
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-### [Products](docs/products.md)
-All products (VOIE, VOA, VOHI, Primacy, Paycheck Pay, Insights), platform components, key integrations.
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-### [Voice Guide](docs/voice-guide.md)
-Brand voice attributes, writing rules, language impact data, tone by content type, subject line best practices.
-
-### [Proof Points](docs/proof-points.md)
-Customer case studies with metrics, quote library by theme, results summary by vertical.
-
-### [Personas](docs/personas.md)
-Buyer personas with pain points, success metrics, messaging angles, deal sizes by segment.
-
-### [Brand Guidelines](docs/brand-guidelines.md)
-Colors, typography, logo usage, design patterns, content formatting.
-
----
-
-## One-Liner
-
-> Truv is the industry-leading consumer permissioned data platform that verifies income, employment, assets, and insurance through direct payroll and bank connections - saving lenders up to 80% vs. instant databases.
-
----
-
-## Elevator Pitch (30 seconds)
-
-> Truv is the industry-leading consumer permissioned data platform. We connect directly to 45+ payroll providers and 13,000+ financial institutions to verify income, employment, and assets in 30 seconds. Lenders save up to 80% vs. instant databases, increase margins by $350 per loan, and cover 96% of the US workforce.
-
----
-
-## Elevator Pitch (10 seconds)
-
-> We verify income and employment in 30 seconds by connecting directly to payroll systems. Up to 80% cheaper than instant databases, 96% workforce coverage, 99.99% fraud detection.
-
----
-
-## Brand Colors
-
-| Color | Hex | Usage |
-|-------|-----|-------|
-| Truv Blue | `#2C64E3` | CTAs, links, accents |
-| Dark | `#171717` | Primary text |
-| Gray | `#3C3C43` | Secondary text |
-
----
-
-*Last updated: December 2024*
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
