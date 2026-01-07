@@ -1,0 +1,26 @@
+/**
+ * Truv Brand Color Palette
+ * CSS Custom Properties
+ */
+
+:root {
+  /* Primary Colors */
+  --truv-primary-blue: #2C64E3;
+  --truv-primary-blue-rgb: 44, 100, 227;
+  --truv-dark-blue: #0F1C47;
+  --truv-dark-blue-rgb: 15, 28, 71;
+
+  /* Neutral Colors */
+  --truv-black: #171717;
+  --truv-black-rgb: 23, 23, 23;
+  --truv-grey: #F4F4F2;
+  --truv-grey-rgb: 244, 244, 242;
+  --truv-white: #FFFFFF;
+  --truv-white-rgb: 255, 255, 255;
+
+  /* Accent Colors */
+  --truv-light-blue: #C5D9F7;
+  --truv-light-blue-rgb: 197, 217, 247;
+  --truv-error-red: #F47F7F;
+  --truv-error-red-rgb: 244, 127, 127;
+}
