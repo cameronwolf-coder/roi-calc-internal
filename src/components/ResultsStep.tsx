@@ -32,6 +32,7 @@ export function ResultsStep({
     // Calculate per-loan costs for explanation
     const currentCostPerLoan = fundedLoans > 0 ? results.currentCost / fundedLoans : 0;
     const truvCostPerLoan = fundedLoans > 0 ? results.futureCost / fundedLoans : 0;
+    const savingsPerLoanDisplay = currentCostPerLoan - truvCostPerLoan;
 
     // Calculate funnel metrics for explanation
     const appsStarted = Math.round(fundedLoans / (advancedInputs.endToEndCR / 100));
@@ -159,12 +160,12 @@ export function ResultsStep({
                                 </div>
                                 <div className="border-t border-gray-200 pt-3 flex justify-between items-center">
                                     <span className="font-medium text-gray-900">
-                                        {results.savingsPerLoan >= 0 ? 'Savings per loan' : 'Additional cost per loan'}
+                                        {savingsPerLoanDisplay >= 0 ? 'Savings per loan' : 'Additional cost per loan'}
                                     </span>
-                                    <span className={`font-bold ${results.savingsPerLoan >= 0 ? 'text-green-600' : 'text-amber-600'}`}>
-                                        {results.savingsPerLoan >= 0
-                                            ? formatCurrency(results.savingsPerLoan)
-                                            : `+${formatCurrency(Math.abs(results.savingsPerLoan))}`
+                                    <span className={`font-bold ${savingsPerLoanDisplay >= 0 ? 'text-green-600' : 'text-amber-600'}`}>
+                                        {savingsPerLoanDisplay >= 0
+                                            ? formatCurrency(Math.round(savingsPerLoanDisplay))
+                                            : `+${formatCurrency(Math.abs(Math.round(savingsPerLoanDisplay)))}`
                                         }
                                     </span>
                                 </div>
